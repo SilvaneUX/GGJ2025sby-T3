@@ -1,0 +1,90 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class slideControl : MonoBehaviour
+{
+    [SerializeField] Slider slider;
+    [SerializeField] float speedSlider;
+    [SerializeField] float[] bottlePourSlide = new float[5];
+    [SerializeField] Button btnMatch;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(bottlePourSlide[0] + bottlePourSlide[1] + bottlePourSlide[2] + bottlePourSlide[3] + bottlePourSlide[4] < 100){
+            // Debug.Log("RUN");
+            if(Input.GetKey(KeyCode.Alpha1))
+            {
+                var calc = 1 * speedSlider * Time.deltaTime;
+                slider.value += calc;
+                bottlePourSlide[0] += calc;
+            }
+            else if(Input.GetKey(KeyCode.Alpha2))
+            {
+                var calc = 1 * speedSlider * Time.deltaTime;
+                slider.value += calc;
+                bottlePourSlide[1] += calc;
+            }
+            else if(Input.GetKey(KeyCode.Alpha3))
+            {
+                var calc = 1 * speedSlider * Time.deltaTime;
+                slider.value += calc;
+                bottlePourSlide[2] += calc;
+            }
+            else if(Input.GetKey(KeyCode.Alpha4))
+            {
+                var calc = 1 * speedSlider * Time.deltaTime;
+                slider.value += calc;
+                bottlePourSlide[3] += calc;
+            }
+            else if(Input.GetKey(KeyCode.Alpha5))
+            {
+                var calc = 1 * speedSlider * Time.deltaTime;
+                slider.value += calc;
+                bottlePourSlide[4] += calc;
+            }
+        }else
+        {
+            btnMatch.interactable = true;
+        }
+    }
+
+    public void Matching()
+    {
+
+        // foreach(float bottlePour in bottlePourSlide)
+        // {
+        //     foreach(int BottlesObjective in ManagerObjective.Bottles)
+        //     {
+                
+        //         if(Mathf.FloorToInt(bottlePour) == BottlesObjective || 
+        //         BottlesObjective + 5 > bottlePour && 
+        //         BottlesObjective - 5 < bottlePour)
+        //         {
+        //             //  perfect score - 18  
+        //             StaticScore.Instance.score += 18;
+        //         }
+        //     }
+        // }
+
+
+        for(int i = 0; i < ManagerObjective.Bottles.Length; i++)
+        {
+            if(Mathf.FloorToInt(bottlePourSlide[i]) == ManagerObjective.Bottles[i]
+            || ManagerObjective.Bottles[i] + 5 > bottlePourSlide[i]
+            && ManagerObjective.Bottles[i] - 5 < bottlePourSlide[i]) 
+            {
+                StaticScore.Instance.score += 18;
+            }else{
+                StaticScore.Instance.score += 6;
+            }
+        }
+
+        Debug.Log(StaticScore.Instance.score);
+    }
+}

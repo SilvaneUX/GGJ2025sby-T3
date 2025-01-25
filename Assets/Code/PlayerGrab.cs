@@ -12,6 +12,8 @@ public class PlayerGrab : MonoBehaviour
     public Transform pointer;
     public Transform playerHandModel;
     public Transform objectGrab;
+    public Transform checkDistance;
+
     public GameObject objInHand;
 
     public float timeSmooth;
@@ -22,7 +24,9 @@ public class PlayerGrab : MonoBehaviour
     public bool change;
     bool hits;
     bool isComplete;
+    public bool allCompleted = true;
     bool returnComplete;
+    public bool pour;
     private void Awake()
     {
         Instance = this;
@@ -41,7 +45,7 @@ public class PlayerGrab : MonoBehaviour
         {
             Returning();
         }
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && allCompleted)
         {
             if ((objInHand && !isComplete) || change)
             {
@@ -49,25 +53,31 @@ public class PlayerGrab : MonoBehaviour
                 {
                     originTransform = objInHand.transform.position;
                     originGameobject = objInHand;
+                    
                 }
                 else
                 {
                     hits = true;
                 }
-                
+
+                allCompleted = false;
                 Smooth();
             } 
         }
 
-        if (Input.GetKeyDown(KeyCode.E)) StartCoroutine(Action());
-        if (Input.GetKeyUp(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            StopCoroutine(Action());
+            BottleServing(true);
+            objInHand.GetComponent<Item>().waterOn = true;
+            pour = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.E))
+        {
             BottleServing(false);
+            objInHand.GetComponent<Item>().waterOn = false;
+            pour = false;
         }
             
-                
-
         if (hits && !change)
         {
             objInHand.transform.position = objectGrab.transform.position;
@@ -80,7 +90,7 @@ public class PlayerGrab : MonoBehaviour
 
     IEnumerator Action()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0);
         BottleServing(true);
         StartCoroutine(Action());
         // do stuff
@@ -88,13 +98,17 @@ public class PlayerGrab : MonoBehaviour
 
     void Smooth()
     {
-
+        Vector2 direction;
+        direction = new Vector2(
+            objInHand.transform.position.x - playerHandModel.transform.position.x,
+            objInHand.transform.position.y - playerHandModel.transform.position.y);
+        playerHand.up = direction;
         timeSmooth = 0;
         StartCoroutine(SmoothDamp());
 
     }
 
-    IEnumerator SmoothDamp()
+    public IEnumerator SmoothDamp()
     {
         IncreaseObjectSize(1, new Vector3(0.01f, 0, 0));
         yield return new WaitForSeconds(0.01f);
@@ -103,46 +117,16 @@ public class PlayerGrab : MonoBehaviour
         {
             StartCoroutine(SmoothDamp());
         }
-        else if ((objectGrab.position.x < objInHand.transform.position.x) && change)
+        else if (change && (objectGrab.position.x < objInHand.transform.position.x))
         {
-            timeSmooth = 0;
-            hits = false;
-            isTouching = false;
-            isComplete = true;
-            if (change)
-            {
-                playerHand.eulerAngles = new Vector3(0, 0, 0);
-
-                isComplete = false;
-                change = false;
-                returnComplete = false;
-                originTransform = objInHand.transform.position;
-                originGameobject = objInHand;
-                yield return new WaitForSeconds(0.1f);
-                StartCoroutine(SmoothOut());
-            }
-            change = false;
+            ItsClose();
+     
         }
         else if (change)
         {
-            timeSmooth = 0;
-            hits = false;
-            isTouching = false;
-            isComplete = true;
-            if (change)
-            {
-                playerHand.eulerAngles = new Vector3(0, 0, 0);
-                
-                isComplete = false;
-                change = false;
-                returnComplete = false;
-                originTransform = objInHand.transform.position;
-                originGameobject = objInHand;
-                Smooth();
-            }
-            change = false;
+            TooFarAway();
         }
-        else
+        else 
         {
             timeSmooth = 0;
             hits = true;
@@ -151,21 +135,73 @@ public class PlayerGrab : MonoBehaviour
         }
     }
 
+    public void TooFarAway()
+    {
+        timeSmooth = 0;
+        hits = false;
+        isTouching = false;
+        isComplete = true;
+        if (change)
+        {
+            isComplete = false;
+            change = false;
+            returnComplete = false;
+            originTransform = objInHand.transform.position;
+            originGameobject = objInHand;
+            DecreaseObjectSize(5, new Vector3(0.01f, 0, 0));
+            
+
+            Smooth();
+        }
+        change = false;
+    }
+
+    public void ItsClose()
+    {
+        
+        timeSmooth = 0;
+
+        isTouching = false;
+        isComplete = true;
+        if (change)
+        {
+            change = false;
+
+
+            isComplete = false;
+
+            returnComplete = false;
+            originTransform = objInHand.transform.position;
+            originGameobject = objInHand;
+            objInHand.GetComponent<Collider2D>().enabled = true;
+            IncreaseObjectSize(5, new Vector3(0.01f, 0, 0));
+
+            StartCoroutine(SmoothOut());
+
+        }
+        change = false;
+    }
+
+
     IEnumerator SmoothOut()
     {
-        Debug.Log("return");
         DecreaseObjectSize(1, new Vector3(0.01f, 0, 0));
         yield return new WaitForSeconds(0.01f);
         timeSmooth += Time.deltaTime;
         if (timeSmooth < 2 && playerHandModel.localScale.y > 1)
         {
+            if (isTouching && !returnComplete)
+            {
+                hits = true;
+            }
             StartCoroutine(SmoothOut());
             
         }
         else
         {
             playerHandModel.localScale = new Vector3(1, 1, 1);
-            playerHand.eulerAngles = new Vector3(0, 0, 70);
+            playerHand.eulerAngles = new Vector3(0, 0, 80);
+            objInHand.transform.position = objectGrab.position;
             hits = false;
             isTouching = false;
             isComplete = true;
@@ -183,7 +219,9 @@ public class PlayerGrab : MonoBehaviour
                 originGameobject = objInHand;
                 Smooth();
             }
-            change = false;
+            //change = false;
+            returnComplete = false;
+            allCompleted = true;
         }
     }
 
@@ -202,13 +240,7 @@ public class PlayerGrab : MonoBehaviour
         mousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
 
         Vector2 direction;
-        if (objInHand && !change)
-        {
-            direction = new Vector2(
-            objInHand.transform.position.x - playerHandModel.transform.position.x,
-            objInHand.transform.position.y - playerHandModel.transform.position.y);
-        }
-        else if (!change)
+        if (!objInHand && !change)
         {
             direction = new Vector2(
             mousePosition.x - playerHandModel.transform.position.x,
@@ -237,7 +269,7 @@ public class PlayerGrab : MonoBehaviour
         {
             if (up)
             {
-                objInHand.transform.eulerAngles = new Vector3(0, 0, 160);
+                objInHand.transform.eulerAngles = new Vector3(0, 0, 116);
             }
             else
             {
@@ -255,5 +287,6 @@ public class PlayerGrab : MonoBehaviour
             returnComplete = true;
         }
     }
+
 
 }

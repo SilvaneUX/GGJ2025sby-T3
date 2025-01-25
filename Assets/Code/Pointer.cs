@@ -18,7 +18,11 @@ public class Pointer : MonoBehaviour
     {
         Vector3 screenPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         transform.position = new Vector3(screenPoint.x, screenPoint.y, -0.9f);
-        Raycast();
+        if (PlayerGrab.Instance.allCompleted)
+        {
+            Raycast();
+        }
+        
     }
 
     
@@ -30,7 +34,6 @@ public class Pointer : MonoBehaviour
             Collider2D hit = Physics2D.OverlapCircle(transform.position, 0.3f, mask);
             if (hit)
             {
-                Debug.Log("Hit");
                 if (hit.GetComponent<Item>())
                 {
                     

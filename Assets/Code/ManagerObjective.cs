@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,7 +13,12 @@ public class ManagerObjective : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        Bottles = new int[5];
+        for(int i = 0; i < Bottles.Length; i++)
+        {
+            Bottles[i] = 0;
+        }
+        Randomize();
     }
 
     // Update is called once per frame
@@ -24,13 +30,17 @@ public class ManagerObjective : MonoBehaviour
     
     public void Randomize()
     {
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < Bottles.Length; i++)
+        {
+            Bottles[i] = 0;
+        }
+
+        for (int i = 0; i < 5; i++)
         {
             img[i].color = Color.clear;
             percent[i].enabled = false;
         }
         int RandomBottle = Random.Range(2, 5);
-        Bottles = new int[RandomBottle];
         int val = 0;
         for(int i = 0; i < RandomBottle; i++)
         {
@@ -53,6 +63,11 @@ public class ManagerObjective : MonoBehaviour
                 Bottles[i] = rnd;
             }
             img[i].color = Color.white;
+        }
+
+        foreach(int i in Bottles)
+        {
+            Debug.Log(i);
         }
     }
 }

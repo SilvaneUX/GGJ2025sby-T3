@@ -1,7 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PlayerGrab : MonoBehaviour
@@ -27,6 +24,9 @@ public class PlayerGrab : MonoBehaviour
     public bool allCompleted = true;
     bool returnComplete;
     public bool pour;
+    public bool buttonPourPressed;
+
+    bool deactivateFacing;
     private void Awake()
     {
         Instance = this;
@@ -40,7 +40,11 @@ public class PlayerGrab : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Facing();
+        if (deactivateFacing)
+        {
+            Facing();
+        }
+        
         if (change)
         {
             Returning();
@@ -65,13 +69,13 @@ public class PlayerGrab : MonoBehaviour
             } 
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (buttonPourPressed && objInHand)
         {
             BottleServing(true);
             objInHand.GetComponent<Item>().waterOn = true;
             pour = true;
         }
-        else if (Input.GetKeyUp(KeyCode.E))
+        else if (!buttonPourPressed && objInHand)
         {
             BottleServing(false);
             objInHand.GetComponent<Item>().waterOn = false;
@@ -242,25 +246,36 @@ public class PlayerGrab : MonoBehaviour
         Vector2 direction;
         if (!objInHand && !change)
         {
-            direction = new Vector2(
-            mousePosition.x - playerHandModel.transform.position.x,
-            mousePosition.y - playerHandModel.transform.position.y
-        );
+            direction = new Vector2(mousePosition.x - playerHandModel.transform.position.x, mousePosition.y - playerHandModel.transform.position.y);
         }
-        else
+        else 
         {
             direction = new Vector2(
             originTransform.x - playerHandModel.transform.position.x,
             originTransform.y - playerHandModel.transform.position.y);
         }
-     
+
 
 
         if (!isComplete || change)
         {
             playerHand.up = direction;
+       
         }
-        
+
+        //if (playerHand.eulerAngles.z > 90)
+        //{
+        //    deactivateFacing = true;
+        //}
+        //else if (playerHand.eulerAngles.z < 35)
+        //{
+        //    deactivateFacing = true;
+        //}
+        //else
+        //{
+        //    deactivateFacing = false;
+        //}
+
     }
 
     void BottleServing(bool up)
@@ -288,5 +303,12 @@ public class PlayerGrab : MonoBehaviour
         }
     }
 
-
+    public static IEnumerator SmoothFacing(AudioSource audioSource, float startVolume, float targetVolume, float secondsToFade)
+    {
+        for (float x = 0.0f; x <= secondsToFade; x += Time.deltaTime)
+        {
+            audioSource.volume = Mathf.Lerp(startVolume, targetVolume, x / secondsToFade);
+            yield return null;
+        }
+    }
 }

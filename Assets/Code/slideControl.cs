@@ -16,42 +16,57 @@ public class slideControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(bottlePourSlide[0] + bottlePourSlide[1] + bottlePourSlide[2] + bottlePourSlide[3] + bottlePourSlide[4] < 100){
-            // Debug.Log("RUN");
-            if(Input.GetKey(KeyCode.Alpha1))
-            {
-                var calc = 1 * speedSlider * Time.deltaTime;
-                slider.value += calc;
-                bottlePourSlide[0] += calc;
-            }
-            else if(Input.GetKey(KeyCode.Alpha2))
-            {
-                var calc = 1 * speedSlider * Time.deltaTime;
-                slider.value += calc;
-                bottlePourSlide[1] += calc;
-            }
-            else if(Input.GetKey(KeyCode.Alpha3))
-            {
-                var calc = 1 * speedSlider * Time.deltaTime;
-                slider.value += calc;
-                bottlePourSlide[2] += calc;
-            }
-            else if(Input.GetKey(KeyCode.Alpha4))
-            {
-                var calc = 1 * speedSlider * Time.deltaTime;
-                slider.value += calc;
-                bottlePourSlide[3] += calc;
-            }
-            else if(Input.GetKey(KeyCode.Alpha5))
-            {
-                var calc = 1 * speedSlider * Time.deltaTime;
-                slider.value += calc;
-                bottlePourSlide[4] += calc;
-            }
-        }else
+        if (PlayerGrab.Instance.objInHand && PlayerGrab.Instance.pour)
         {
-            btnMatch.interactable = true;
+            if ((bottlePourSlide[0] + bottlePourSlide[1] + bottlePourSlide[2] + bottlePourSlide[3] + bottlePourSlide[4] < 100))
+            {
+                // Debug.Log("RUN");
+                int id = PlayerGrab.Instance.objInHand.GetComponent<Item>().itemID;
+                switch (id)
+                {
+                    case 0:
+                        {
+                            var calc = 1 * speedSlider * Time.deltaTime;
+                            slider.value += calc;
+                            bottlePourSlide[0] += calc;
+                        }
+                        break;
+                    case 1:
+                        {
+                            var calc = 1 * speedSlider * Time.deltaTime;
+                            slider.value += calc;
+                            bottlePourSlide[1] += calc;
+                        }
+                        break;
+                    case 2:
+                        {
+                            var calc = 1 * speedSlider * Time.deltaTime;
+                            slider.value += calc;
+                            bottlePourSlide[2] += calc;
+                        }
+                        break;
+                    case 3:
+                        {
+                            var calc = 1 * speedSlider * Time.deltaTime;
+                            slider.value += calc;
+                            bottlePourSlide[3] += calc;
+                        }
+                        break;
+                    case 4:
+                        {
+                            var calc = 1 * speedSlider * Time.deltaTime;
+                            slider.value += calc;
+                            bottlePourSlide[4] += calc;
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                btnMatch.interactable = true;
+            }
         }
+        
     }
 
     public void Matching()
@@ -80,11 +95,19 @@ public class slideControl : MonoBehaviour
             && ManagerObjective.Bottles[i] - 5 < bottlePourSlide[i]) 
             {
                 StaticScore.Instance.score += 18;
-            }else{
+            }else if(Mathf.FloorToInt(bottlePourSlide[i]) == ManagerObjective.Bottles[i]
+            || ManagerObjective.Bottles[i] + 15 > bottlePourSlide[i]
+            && ManagerObjective.Bottles[i] - 15 < bottlePourSlide[i])
+            {
+                StaticScore.Instance.score += 12;
+            }
+            else{
                 StaticScore.Instance.score += 6;
             }
         }
 
         Debug.Log(StaticScore.Instance.score);
     }
+
+    
 }

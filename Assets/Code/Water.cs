@@ -41,7 +41,7 @@ public class Water : MonoBehaviour
         smoothTime += Time.deltaTime;
         if (smoothTime < 30)
         {
-            IncreaseObjectSize(0.1f, Vector3.down);
+            IncreaseObjectSize(0.8f, Vector3.down);
             StartCoroutine(Smooth());
         }
     }

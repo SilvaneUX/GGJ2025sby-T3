@@ -9,6 +9,7 @@ public class Item : MonoBehaviour
     public Transform waterPos;
     public bool waterOn;
     public bool waterBool;
+    public int itemID;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
